@@ -1,0 +1,63 @@
+group 'vision_frontEnd_test'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'groovy'
+
+repositories {
+    mavenCentral()
+}
+configurations {
+    cucumberSandwich
+}
+
+dependencies {
+    compile (
+            'org.codehaus.groovy:groovy-all:2.3.11',
+            'info.cukes:cucumber-core:1.2.5',
+            'info.cukes:cucumber-groovy:1.2.5',
+            'info.cukes:cucumber-junit:1.2.5',
+            'info.cukes:cucumber-html:0.2.3',
+            'org.slf4j:slf4j-api:1.7.2',
+            'ch.qos.logback:logback-classic:1.1.10',
+            'ch.qos.logback:logback-core:1.1.10',
+            'org.seleniumhq.selenium:selenium-java:3.8.1',
+            'org.seleniumhq.selenium:selenium-chrome-driver:3.8.1',
+            'io.appium:java-client:5.0.3',
+            'com.fasterxml.jackson.core:jackson-databind:2.9.2',
+            'commons-io:commons-io:2.6',
+            'org.hamcrest:hamcrest-junit:2.0.0.0',
+            'com.googlecode.json-simple:json-simple:1.1.1'
+    )
+    testCompile (
+            'junit:junit:4.12',
+            'org.spockframework:spock-core:1.1-groovy-2.4'
+    )
+
+    cucumberSandwich 'net.masterthought:cucumber-sandwich:3.11.0'
+}
+
+task runCucumberSandwich(type: JavaExec) {
+    main = "net.masterthought.cucumber.sandwich.CucumberReportMonitor"
+    classpath = configurations.cucumberSandwich
+    args "-n", "-f", "$projectDir/Reports/Cucumber", "-o", "$projectDir/Reports"
+
+    standardOutput = new ByteArrayOutputStream()
+    errorOutput = new ByteArrayOutputStream()
+
+    doLast {
+        println "\nTo view the report run:"
+        println "open $projectDir/Reports/cucumber-html-reports/cucumber-html-reports/overview-features.html"
+    }
+}
+
+
+
+test {
+    dependsOn clean
+
+    System.properties.each { name, value ->
+        systemProperty name as String, value as String
+    }
+
+    testLogging.showStandardStreams = true
+}
